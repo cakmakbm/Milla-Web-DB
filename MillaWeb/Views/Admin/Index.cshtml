@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<h2 class="mb-3">Admin Panel</h2>
+
+<div class="alert alert-success">
+    Hoşgeldin Admin: <strong>@User.Identity?.Name</strong>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Products</h5>
+            <p class="text-muted mb-2">Ürün ekle / güncelle / pasif et</p>
+            <a class="btn btn-dark"
+               asp-controller="AdminProducts"
+               asp-action="Index">
+                Manage
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Variants & Stock</h5>
+            <p class="text-muted mb-2">Varyant ekle / stok güncelle</p>
+            <a class="btn btn-dark"
+               asp-controller="AdminVariants"
+               asp-action="Index">
+                Manage
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Low Stock</h5>
+            <p class="text-muted mb-2">Azalan stok raporu</p>
+            <a class="btn btn-outline-dark"
+               asp-controller="AdminReports"
+               asp-action="LowStock">
+                View
+            </a>
+        </div>
+    </div>
+</div>
