@@ -1,12 +1,86 @@
-﻿@{
-    ViewData["Title"] = "Product Detail";
+﻿@model MillaWeb.Models.ProductDetailVM
+@{
+    ViewData["Title"] = Model.ProductName;
 }
 
-<h2>Product Detail</h2>
-<p>ProductID: <strong>@ViewBag.ProductID</strong></p>
+<div class="row g-4">
+    <div class="col-md-5">
+        <img class="img-fluid rounded shadow-sm"
+             src="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "https://picsum.photos/seed/noimage/800/800" : Model.ImageUrl)"
+             style="width:100%; aspect-ratio: 1/1; object-fit: cover;" />
+    </div>
 
-<div class="alert alert-info">
-    Bir sonraki adımda burada ürün bilgisi + varyant seçimi (beden/renk) yapacağız.
+    <div class="col-md-7">
+        <div class="small text-muted">@Model.BrandName • @Model.CategoryName</div>
+        <h2 class="mb-2">@Model.ProductName</h2>
+
+        <div class="h4 fw-bold mb-3">@Model.UnitPrice.ToString("N2") ₺</div>
+
+        <div class="text-muted mb-3">
+            Satıcı: <strong>@Model.SupplierName</strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p>@Model.Description</p>
+        }
+
+        <hr />
+
+        <h5 class="mb-2">Varyantlar</h5>
+
+        @if (Model.Variants.Count == 0)
+        {
+            <div class="alert alert-warning">Bu ürün için henüz varyant eklenmemiş.</div>
+        }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th>Stock</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model.Variants)
+                    {
+                        <tr>
+                            <td>@v.Color</td>
+                            <td>@v.Size</td>
+                            <td>
+                                <span class="badge @(v.StockQuantity > 0 ? "bg-success" : "bg-danger")">
+                                    @v.StockQuantity
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <form method="post" asp-controller="Cart" asp-action="Add" class="d-inline">
+                                        <input type="hidden" name="variantId" value="@v.VariantID" />
+                                        <input type="hidden" name="qty" value="1" />
+                                        <button class="btn btn-sm btn-dark" @(v.StockQuantity > 0 ? "" : "disabled")>
+                                            Sepete Ekle
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-outline-dark"
+                                       asp-controller="Account"
+                                       asp-action="Login"
+                                       asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")">
+                                        Sepete Ekle (Login)
+                                    </a>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>
-
-<a class="btn btn-outline-dark" asp-controller="Catalog" asp-action="Index">Geri</a>

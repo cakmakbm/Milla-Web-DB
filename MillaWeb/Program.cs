@@ -2,12 +2,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie("Cookies", options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Denied";
-    });
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Cookies";
+    options.DefaultSignInScheme = "Cookies";
+    options.DefaultChallengeScheme = "Cookies";
+})
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/Denied";
+});
+
 
 builder.Services.AddAuthorization();
 
@@ -16,6 +22,15 @@ builder.Services.AddSingleton<MillaWeb.Data.AuthRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminProductsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminVariantsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminReportsRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.ProductRepository>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 var app = builder.Build();
 
@@ -30,6 +45,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 
 app.UseAuthentication();
