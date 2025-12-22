@@ -1,4 +1,103 @@
-﻿<h3>Products</h3>
-<div class="alert alert-info">
-    Ürün CRUD (SP ile) bir sonraki adımda burada yapılacak.
+﻿@model List<MillaWeb.Models.AdminProductRow>
+
+@{
+    ViewData["Title"] = "Admin - Products";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Products</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
 </div>
+
+<div class="card p-3 mb-4">
+    <h5 class="mb-3">Add New Product</h5>
+
+    <form method="post" asp-action="Add" class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">CategoryID</label>
+            <input class="form-control" name="categoryId" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">BrandID</label>
+            <input class="form-control" name="brandId" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">SupplierID</label>
+            <input class="form-control" name="supplierId" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Product Name</label>
+            <input class="form-control" name="productName" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Unit Price</label>
+            <input class="form-control" name="unitPrice" />
+        </div>
+
+        <div class="col-md-9">
+            <label class="form-label">ImageUrl</label>
+            <input class="form-control" name="imageUrl" placeholder="https://picsum.photos/seed/999/600/600" />
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Description</label>
+            <input class="form-control" name="description" />
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-dark">Add Product</button>
+        </div>
+    </form>
+
+    <div class="text-muted small mt-2">
+        Not: CategoryID/BrandID/SupplierID değerlerini şimdilik manuel giriyoruz. (Bir sonraki adımda dropdown yaparız.)
+    </div>
+</div>
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Supplier</th>
+            <th>Price</th>
+            <th>Active</th>
+            <th style="width: 140px;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model)
+        {
+            <tr>
+                <td>@x.ProductID</td>
+                <td>
+                    <div class="fw-semibold">@x.ProductName</div>
+                    <div class="small text-muted">@x.ImageUrl</div>
+                </td>
+                <td>@x.CategoryName</td>
+                <td>@x.BrandName</td>
+                <td>@x.SupplierName</td>
+                <td>@x.UnitPrice.ToString("N2") ₺</td>
+                <td>
+                    <span class="badge @(x.IsActive ? "bg-success" : "bg-secondary")">
+                        @(x.IsActive ? "Active" : "Inactive")
+                    </span>
+                </td>
+                <td>
+                    @if (x.IsActive)
+                    {
+                        <form method="post" asp-action="Deactivate">
+                            <input type="hidden" name="id" value="@x.ProductID" />
+                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Deactivate product?');">
+                                Deactivate
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

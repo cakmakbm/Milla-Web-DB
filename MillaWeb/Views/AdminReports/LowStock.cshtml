@@ -1,4 +1,61 @@
-﻿<h3>Low Stock</h3>
-<div class="alert alert-info">
-    vw_LowStockVariants raporu burada listelenecek.
+﻿@model List<MillaWeb.Models.LowStockRow>
+
+@{
+    ViewData["Title"] = "Low Stock Report";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Low Stock Report (<= 5)</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
 </div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-success">
+        Harika! Low stock ürün yok.
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        Toplam <strong>@Model.Count</strong> varyant düşük stokta.
+    </div>
+
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>VariantID</th>
+                <th>Product</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>SKU</th>
+                <th>Stock</th>
+                <th style="width:160px;">Quick Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model)
+            {
+                <tr>
+                    <td>@x.VariantID</td>
+                    <td>
+                        <div class="fw-semibold">@x.ProductName</div>
+                        <div class="small text-muted">ProductID: @x.ProductID</div>
+                    </td>
+                    <td>@x.Color</td>
+                    <td>@x.Size</td>
+                    <td>@x.Sku</td>
+                    <td><span class="badge bg-danger">@x.StockQuantity</span></td>
+                    <td>
+                        <a class="btn btn-sm btn-dark"
+                           asp-controller="AdminVariants"
+                           asp-action="Index"
+                           asp-route-productId="@x.ProductID">
+                            Go to Variants
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

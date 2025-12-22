@@ -1,4 +1,120 @@
-﻿<h3>Variants & Stock</h3>
-<div class="alert alert-info">
-    Varyant ekleme / stok güncelleme bir sonraki adımda burada.
+﻿@model List<MillaWeb.Models.AdminVariantRow>
+@{
+    ViewData["Title"] = "Admin - Variants & Stock";
+    int? pid = ViewBag.ProductID as int?;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Variants & Stock</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
 </div>
+
+<div class="card p-3 mb-3">
+    <h5 class="mb-2">Select Product</h5>
+
+    @{
+        var products = ViewBag.Products as List<(int ProductID, string ProductName)> ?? new();
+    }
+
+    <form method="get" class="row g-2">
+        <div class="col-md-6">
+            <label class="form-label">Product</label>
+            <select class="form-select" name="productId">
+                <option value="">-- Select --</option>
+                @foreach (var p in products)
+                {
+                    <option value="@p.ProductID" selected="@(pid == p.ProductID)">
+                        @p.ProductName (@p.ProductID)
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-dark">Load Variants</button>
+        </div>
+    </form>
+</div>
+
+
+@if (pid == null)
+{
+    <div class="alert alert-info">Bir ProductID girip “Load Variants” bas.</div>
+}
+else
+{
+    <div class="card p-3 mb-4">
+        <h5 class="mb-3">Add Variant (ProductID: @pid)</h5>
+
+        <form method="post" asp-action="Add" class="row g-2">
+            <input type="hidden" name="productId" value="@pid" />
+
+            <div class="col-md-3">
+                <label class="form-label">Color</label>
+                <input class="form-control" name="color" placeholder="Black" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Size</label>
+                <input class="form-control" name="size" placeholder="M" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Stock</label>
+                <input class="form-control" name="stockQuantity" placeholder="20" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">SKU (optional)</label>
+                <input class="form-control" name="sku" placeholder="TSHIRT-BLK-M" />
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-dark w-100">Add</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>VariantID</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>SKU</th>
+                <th>Stock</th>
+                <th style="width: 280px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model)
+            {
+                <tr>
+                    <td>@v.VariantID</td>
+                    <td>@v.Color</td>
+                    <td>@v.Size</td>
+                    <td>@v.Sku</td>
+                    <td><strong>@v.StockQuantity</strong></td>
+                    <td>
+                        <form method="post" asp-action="UpdateStock" class="d-inline-flex gap-2">
+                            <input type="hidden" name="productId" value="@pid" />
+                            <input type="hidden" name="variantId" value="@v.VariantID" />
+                            <input class="form-control form-control-sm" style="width:120px;"
+                                   name="newStockQuantity" value="@v.StockQuantity" />
+                            <button class="btn btn-sm btn-outline-dark">Update</button>
+                        </form>
+
+                        <form method="post" asp-action="Delete" class="d-inline">
+                            <input type="hidden" name="productId" value="@pid" />
+                            <input type="hidden" name="variantId" value="@v.VariantID" />
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete variant?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

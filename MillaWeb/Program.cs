@@ -13,6 +13,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<MillaWeb.Data.CatalogRepository>();  // kendi namespace'ine göre
 builder.Services.AddSingleton<MillaWeb.Data.AuthRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.AdminProductsRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.AdminVariantsRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.AdminReportsRepository>();
 
 var app = builder.Build();
 
