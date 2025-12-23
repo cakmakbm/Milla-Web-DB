@@ -1,0 +1,106 @@
+﻿@model List<MillaWeb.Models.AdminReturnRow>
+@{
+    ViewData["Title"] = "Admin - Returns";
+    string status = ViewBag.Status as string ?? "Requested";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Returns</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
+</div>
+
+@if (TempData["AdminReturnOk"] != null)
+{
+    <div class="alert alert-success">@TempData["AdminReturnOk"]</div>
+}
+
+<div class="card p-3 mb-3">
+    <form method="get" class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label">Filter Status</label>
+            <select class="form-select" name="status">
+                <option value="" selected="@(string.IsNullOrEmpty(status))">All</option>
+                <option value="Requested" selected="@(status == "Requested")">Requested</option>
+                <option value="Approved" selected="@(status == "Approved")">Approved</option>
+                <option value="Rejected" selected="@(status == "Rejected")">Rejected</option>
+                <option value="Refunded" selected="@(status == "Refunded")">Refunded</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-dark w-100">Load</button>
+        </div>
+    </form>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">No returns found.</div>
+}
+else
+{
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width:90px;">ReturnID</th>
+                <th>Product</th>
+                <th style="width:70px;">Qty</th>
+                <th style="width:110px;">Status</th>
+                <th style="width:170px;">Date</th>
+                <th>Reason</th>
+                <th style="width:320px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.ReturnID</td>
+                    <td>
+                        <div class="fw-semibold">@r.ProductName</div>
+                        <div class="text-muted small">
+                            Variant: #@r.VariantID (@r.Color @r.Size) • Order #@r.OrderID • Customer #@r.CustomerID
+                        </div>
+                    </td>
+                    <td>@r.ReturnQty</td>
+                    <td><span class="badge bg-secondary">@r.ReturnStatus</span></td>
+                    <td>@r.ReturnDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@r.ReturnReason</td>
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <form method="post" asp-action="SetStatus">
+                                <input type="hidden" name="returnId" value="@r.ReturnID" />
+                                <input type="hidden" name="status" value="Approved" />
+                                <input type="hidden" name="currentStatus" value="@status" />
+                                <button class="btn btn-sm btn-outline-success"
+                                        @(r.ReturnStatus == "Requested" ? "" : "disabled")>
+                                    Approve
+                                </button>
+                            </form>
+
+                            <form method="post" asp-action="SetStatus">
+                                <input type="hidden" name="returnId" value="@r.ReturnID" />
+                                <input type="hidden" name="status" value="Rejected" />
+                                <input type="hidden" name="currentStatus" value="@status" />
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @(r.ReturnStatus == "Requested" ? "" : "disabled")>
+                                    Reject
+                                </button>
+                            </form>
+
+                            <form method="post" asp-action="SetStatus">
+                                <input type="hidden" name="returnId" value="@r.ReturnID" />
+                                <input type="hidden" name="status" value="Refunded" />
+                                <input type="hidden" name="currentStatus" value="@status" />
+                                <button class="btn btn-sm btn-dark"
+                                        onclick="return confirm('Refund? (stok geri eklenecek)');"
+                                        @(r.ReturnStatus == "Approved" ? "" : "disabled")>
+                                    Refund
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

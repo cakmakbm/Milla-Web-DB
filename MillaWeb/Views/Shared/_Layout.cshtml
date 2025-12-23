@@ -1,4 +1,15 @@
-﻿<!DOCTYPE html>
+﻿@using MillaWeb.Helpers
+@using MillaWeb.Models
+
+@{
+    var cart = Context.Session.GetObject<List<CartItem>>("CART") ?? new List<CartItem>();
+    var cartCount = cart.Sum(x => x.Quantity);
+    var isAuth = User?.Identity?.IsAuthenticated == true;
+    var isAdmin = User?.IsInRole("Admin") == true;
+    var userEmail = User?.Identity?.Name ?? "";
+}
+
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -25,24 +36,63 @@
                         <a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Cart" asp-action="Index">Cart</a>
+                        <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
+                            Cart
+                            @if (cartCount > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @cartCount
+                                </span>
+                            }
+                        </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Address" asp-action="Index">My Addresses</a>
+                    </li>
+
                 </ul>
 
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
                     @if (User?.Identity != null && User.Identity.IsAuthenticated)
                     {
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                                    Admin
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="AdminOrders"
+                                   asp-action="Index">
+                                    All Orders
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="AdminReturns"
+                                   asp-action="Index">
+                                    Returns
+                                </a>
                             </li>
                         }
 
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                        <li class="nav-item d-flex align-items-center">
+                            <form method="post"
+                                  asp-controller="Account"
+                                  asp-action="Logout"
+                                  class="m-0">
+                                <button type="submit"
+                                        class="nav-link btn btn-link text-decoration-none px-0">
+                                    Logout
+                                </button>
+                            </form>
                         </li>
                     }
+
                     else
                     {
                         <li class="nav-item">

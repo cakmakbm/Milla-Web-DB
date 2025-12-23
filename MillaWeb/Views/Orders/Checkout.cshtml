@@ -1,0 +1,29 @@
+﻿@model List<MillaWeb.Models.AddressRow>
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h2 class="mb-3">Checkout</h2>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">
+        Adres yok. Önce bir adres eklemelisin.
+    </div>
+}
+else
+{
+    <form method="post" asp-action="CheckoutSubmit" class="card p-3">
+        <label class="form-label">Select Address</label>
+        <select class="form-select" name="addressId" required>
+            @foreach (var a in Model)
+            {
+                <option value="@a.AddressID" selected="@a.IsDefault">@a.DisplayText</option>
+            }
+        </select>
+
+        <div class="mt-3 text-end">
+            <button class="btn btn-dark">Place Order</button>
+        </div>
+    </form>
+}

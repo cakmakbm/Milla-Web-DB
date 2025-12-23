@@ -1,0 +1,50 @@
+﻿@model List<MillaWeb.Models.AddressRow>
+@{
+    ViewData["Title"] = "My Addresses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">My Addresses</h2>
+    <a class="btn btn-dark" asp-action="Create">Add New</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">Henüz adres yok.</div>
+}
+else
+{
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Address</th>
+                <th style="width:130px;">Default</th>
+                <th style="width:220px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.DisplayText</td>
+                    <td>
+                        @if (a.IsDefault)
+                        {
+                            <span class="badge bg-success">Default</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-dark" asp-action="Edit" asp-route-id="@a.AddressID">Edit</a>
+                        <form method="post" asp-action="Delete" class="d-inline">
+                            <input type="hidden" name="id" value="@a.AddressID" />
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete address?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

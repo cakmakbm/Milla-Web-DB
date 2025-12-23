@@ -23,6 +23,13 @@ builder.Services.AddSingleton<MillaWeb.Data.AdminProductsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminVariantsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminReportsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.ProductRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.OrdersRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.UserAddressRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.ReturnsRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.AdminReturnsRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.ProductSocialRepository>();
+builder.Services.AddSingleton<MillaWeb.Data.AdminOrdersRepository>();
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

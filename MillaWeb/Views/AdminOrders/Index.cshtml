@@ -1,0 +1,70 @@
+﻿@model List<MillaWeb.Models.AdminOrderRow>
+@{
+    ViewData["Title"] = "Admin - Orders";
+    int? cid = ViewBag.CustomerID as int?;
+    string status = ViewBag.Status as string ?? "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">All Orders</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
+</div>
+
+<div class="card p-3 mb-3">
+    <form method="get" class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label">CustomerID (optional)</label>
+            <input class="form-control" name="customerId" value="@(cid?.ToString() ?? "")" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Status (optional)</label>
+            <select class="form-select" name="status">
+                <option value="" selected="@(string.IsNullOrEmpty(status))">All</option>
+                <option value="Pending" selected="@(status == "Pending")">Pending</option>
+                <option value="Processing" selected="@(status == "Processing")">Processing</option>
+                <option value="Shipped" selected="@(status == "Shipped")">Shipped</option>
+                <option value="Delivered" selected="@(status == "Delivered")">Delivered</option>
+                <option value="Cancelled" selected="@(status == "Cancelled")">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-dark w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">No orders found.</div>
+}
+else
+{
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width:90px;">OrderID</th>
+                <th style="width:170px;">Date</th>
+                <th style="width:120px;">Status</th>
+                <th style="width:140px;">Total</th>
+                <th>Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                <tr>
+                    <td>@o.OrderID</td>
+                    <td>@o.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td><span class="badge bg-secondary">@o.OrderStatus</span></td>
+                    <td class="fw-bold">@o.TotalAmount.ToString("N2") ₺</td>
+                    <td>
+                        <div class="fw-semibold">@o.FirstName @o.LastName</div>
+                        <div class="text-muted small">CustomerID: @o.CustomerID • @o.Email</div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

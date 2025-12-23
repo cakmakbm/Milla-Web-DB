@@ -1,0 +1,130 @@
+﻿@model MillaWeb.Models.OrderDetailVM
+
+@{
+    ViewData["Title"] = $"Order #{Model.OrderID}";
+    var success = Context.Request.Query["success"].ToString() == "1";
+}
+
+@if (success)
+{
+    <div class="alert alert-success">
+        ✅ Sipariş başarıyla oluşturuldu!
+    </div>
+}
+
+@if (TempData["ReturnOk"] != null)
+{
+    <div class="alert alert-success">@TempData["ReturnOk"]</div>
+}
+@if (TempData["ReturnErr"] != null)
+{
+    <div class="alert alert-danger">@TempData["ReturnErr"]</div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Order #@Model.OrderID</h2>
+    <a class="btn btn-outline-dark" asp-action="Index">Back</a>
+</div>
+
+<div class="card p-3 mb-3">
+    <div><strong>Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+    <div><strong>Status:</strong> @Model.OrderStatus</div>
+    <div><strong>Total:</strong> @Model.TotalAmount.ToString("N2") ₺</div>
+</div>
+
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Item</th>
+            <th style="width:80px;">Qty</th>
+            <th style="width:140px;">Unit</th>
+            <th style="width:140px;">Line</th>
+            <th style="width:360px;">Return</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.ProductName</td>
+                <td>@x.Quantity</td>
+                <td>@x.UnitPriceAtOrder.ToString("N2") ₺</td>
+                <td class="fw-bold">@x.LineTotal.ToString("N2") ₺</td>
+                <td>
+                    <form method="post"
+                          asp-controller="Returns"
+                          asp-action="Request"
+                          class="d-flex gap-2">
+
+                        <input type="hidden" name="orderId" value="@Model.OrderID" />
+                        <input type="hidden" name="orderItemId" value="@x.OrderItemID" />
+
+                        <input type="number"
+                               class="form-control form-control-sm"
+                               name="quantity"
+                               min="1"
+                               max="@x.Quantity"
+                               value="1"
+                               style="width:90px;" />
+
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               name="reason"
+                               placeholder="Reason (optional)" />
+
+                        <button class="btn btn-sm btn-outline-dark">
+                            Request
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var returns = ViewBag.Returns as List<MillaWeb.Models.ReturnRow> ?? new();
+}
+
+<h4 class="mt-4">My Return Requests</h4>
+
+@if (returns.Count == 0)
+{
+    <div class="alert alert-secondary">
+        Bu sipariş için iade talebi yok.
+    </div>
+}
+else
+{
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width:90px;">ReturnID</th>
+                <th>Item</th>
+                <th style="width:80px;">Qty</th>
+                <th style="width:120px;">Status</th>
+                <th style="width:170px;">Date</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rr in returns)
+            {
+                <tr>
+                    <td>@rr.ReturnID</td>
+                    <td>
+                        @rr.ProductName
+                        <span class="text-muted">(@rr.Color @rr.Size)</span>
+                        <span class="text-muted">#@rr.OrderItemID</span>
+                    </td>
+                    <td>@rr.ReturnQty</td>
+                    <td>
+                        <span class="badge bg-secondary">@rr.ReturnStatus</span>
+                    </td>
+                    <td>@rr.ReturnDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@rr.ReturnReason</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

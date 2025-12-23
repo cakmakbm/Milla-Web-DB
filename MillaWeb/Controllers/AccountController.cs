@@ -53,6 +53,7 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Catalog");
     }
 
+    [HttpPost]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync("Cookies");

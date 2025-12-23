@@ -1,6 +1,9 @@
 ﻿@model MillaWeb.Models.ProductDetailVM
 @{
     ViewData["Title"] = Model.ProductName;
+
+    var reviews = ViewBag.Reviews as List<MillaWeb.Models.ReviewRow> ?? new();
+    var qna = ViewBag.Qna as List<MillaWeb.Models.QnaRow> ?? new();
 }
 
 <div class="row g-4">
@@ -84,3 +87,128 @@
         }
     </div>
 </div>
+
+<hr class="my-4" />
+
+<h4>Reviews</h4>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    if (ViewBag.HasPurchased == true)
+    {
+        <form method="post"
+              asp-controller="ProductSocial"
+              asp-action="AddReview"
+              class="card p-3 mb-3">
+
+            <input type="hidden" name="productId" value="@Model.ProductID" />
+
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <label class="form-label">Rating</label>
+                    <input type="number" name="rating" min="1" max="5" value="5" class="form-control" />
+                </div>
+                <div class="col-md-10">
+                    <label class="form-label">Comment</label>
+                    <input type="text" name="reviewText" class="form-control" placeholder="Your review..." />
+                </div>
+            </div>
+
+            <div class="text-end mt-2">
+                <button class="btn btn-dark">Save Review</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Bu ürünü satın almadan review yazamazsın.
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info">
+        Review yazmak için login ol.
+    </div>
+}
+
+@if (reviews.Count == 0)
+{
+    <div class="text-muted mb-4">Henüz review yok.</div>
+}
+else
+{
+    <div class="list-group mb-4">
+        @foreach (var r in reviews)
+        {
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div><strong>Customer #@r.CustomerID</strong> • ⭐ @r.Rating/5</div>
+                    <div class="text-muted small">@r.ReviewDate.ToString("yyyy-MM-dd")</div>
+                </div>
+                <div>@r.ReviewText</div>
+            </div>
+        }
+    </div>
+}
+
+
+<h4>Questions & Answers</h4>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <form method="post" asp-controller="ProductSocial" asp-action="AskQuestion" class="card p-3 mb-3">
+        <input type="hidden" name="productId" value="@Model.ProductID" />
+
+        <label class="form-label">Ask a question</label>
+        <input class="form-control" name="questionText" placeholder="Write your question..." />
+
+        <div class="text-end mt-2">
+            <button class="btn btn-dark">Ask</button>
+        </div>
+    </form>
+}
+else
+{
+    <div class="alert alert-info">Soru sormak için login ol.</div>
+}
+
+@if (qna.Count == 0)
+{
+    <div class="text-muted">Henüz soru yok.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var q in qna)
+        {
+            <div class="list-group-item">
+                <div class="text-muted small">Customer #@q.CustomerID • @q.QuestionDate.ToString("yyyy-MM-dd")</div>
+                <div class="fw-semibold">@q.QuestionText</div>
+
+                @if (!string.IsNullOrWhiteSpace(q.AnswerText))
+                {
+                    <div class="mt-2 p-2 bg-light rounded">
+                        <div class="small text-muted">Answer • @q.AnswerDate?.ToString("yyyy-MM-dd")</div>
+                        <div>@q.AnswerText</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="small text-muted mt-2">No answer yet.</div>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <form method="post" asp-controller="AdminQna" asp-action="Answer" class="d-flex gap-2 mt-2">
+                            <input type="hidden" name="productId" value="@Model.ProductID" />
+                            <input type="hidden" name="questionId" value="@q.QuestionID" />
+                            <input class="form-control form-control-sm" name="answerText" placeholder="Write answer..." />
+                            <button class="btn btn-sm btn-outline-dark">Answer</button>
+                        </form>
+                    }
+                }
+            </div>
+        }
+    </div>
+}
