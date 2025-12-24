@@ -1,0 +1,72 @@
+﻿@model List<MillaWeb.Models.AdminBrandRow>
+@{
+    ViewData["Title"] = "Admin - Brands";
+}
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] != null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Brands</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
+</div>
+
+<div class="card p-3 mb-3">
+    <h5 class="mb-2">Add Brand</h5>
+    <form method="post" asp-action="Add" class="row g-2">
+        <div class="col-md-6">
+            <label class="form-label">BrandName</label>
+            <input class="form-control" name="brandName" required />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Country</label>
+            <input class="form-control" name="country" />
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-dark w-100">Add</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th style="width:90px;">BrandID</th>
+            <th>BrandName</th>
+            <th>Country</th>
+            <th style="width:320px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td>@b.BrandID</td>
+                <td>@b.BrandName</td>
+                <td>@b.Country</td>
+                <td>
+                    <form method="post" asp-action="Update" class="d-inline-flex gap-2">
+                        <input type="hidden" name="brandId" value="@b.BrandID" />
+                        <input class="form-control form-control-sm" name="brandName" value="@b.BrandName" />
+                        <input class="form-control form-control-sm" name="country" value="@b.Country" />
+                        <button class="btn btn-sm btn-outline-dark">Update</button>
+                    </form>
+
+                    <form method="post" asp-action="Delete" class="d-inline">
+                        <input type="hidden" name="brandId" value="@b.BrandID" />
+                        <button class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete brand?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

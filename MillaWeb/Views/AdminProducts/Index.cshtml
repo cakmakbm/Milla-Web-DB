@@ -1,7 +1,12 @@
 ﻿@model List<MillaWeb.Models.AdminProductRow>
+@using MillaWeb.Models
 
 @{
     ViewData["Title"] = "Admin - Products";
+
+    var categories = ViewBag.Categories as List<LookupItem> ?? new();
+    var brands = ViewBag.Brands as List<LookupItem> ?? new();
+    var suppliers = ViewBag.Suppliers as List<LookupItem> ?? new();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -9,33 +14,72 @@
     <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
 </div>
 
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] != null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+@if (categories.Count == 0 || brands.Count == 0 || suppliers.Count == 0)
+{
+    <div class="alert alert-warning">
+        Ürün eklemek için önce <strong>Category / Brand / Supplier</strong> eklemelisin.
+        (Şu an: Category=@categories.Count, Brand=@brands.Count, Supplier=@suppliers.Count)
+    </div>
+}
+
 <div class="card p-3 mb-4">
     <h5 class="mb-3">Add New Product</h5>
 
     <form method="post" asp-action="Add" class="row g-2">
-        <div class="col-md-2">
-            <label class="form-label">CategoryID</label>
-            <input class="form-control" name="categoryId" />
+
+        <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="categoryId" required>
+                <option value="">Select category...</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
         </div>
-        <div class="col-md-2">
-            <label class="form-label">BrandID</label>
-            <input class="form-control" name="brandId" />
+
+        <div class="col-md-3">
+            <label class="form-label">Brand</label>
+            <select class="form-select" name="brandId" required>
+                <option value="">Select brand...</option>
+                @foreach (var b in brands)
+                {
+                    <option value="@b.Id">@b.Name</option>
+                }
+            </select>
         </div>
-        <div class="col-md-2">
-            <label class="form-label">SupplierID</label>
-            <input class="form-control" name="supplierId" />
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Product Name</label>
-            <input class="form-control" name="productName" />
+
+        <div class="col-md-3">
+            <label class="form-label">Supplier</label>
+            <select class="form-select" name="supplierId" required>
+                <option value="">Select supplier...</option>
+                @foreach (var s in suppliers)
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            </select>
         </div>
 
         <div class="col-md-3">
             <label class="form-label">Unit Price</label>
-            <input class="form-control" name="unitPrice" />
+            <input class="form-control" name="unitPrice" required />
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-12">
+            <label class="form-label">Product Name</label>
+            <input class="form-control" name="productName" required />
+        </div>
+
+        <div class="col-md-12">
             <label class="form-label">ImageUrl</label>
             <input class="form-control" name="imageUrl" placeholder="https://picsum.photos/seed/999/600/600" />
         </div>
@@ -46,26 +90,28 @@
         </div>
 
         <div class="col-12">
-            <button class="btn btn-dark">Add Product</button>
+            <button class="btn btn-dark" @(categories.Count == 0 || brands.Count == 0 || suppliers.Count == 0 ? "disabled" : "")>
+                Add Product
+            </button>
         </div>
     </form>
 
     <div class="text-muted small mt-2">
-        Not: CategoryID/BrandID/SupplierID değerlerini şimdilik manuel giriyoruz. (Bir sonraki adımda dropdown yaparız.)
+        <!-- İstersen buraya "Önce kategori/brand/supplier ekleyin" gibi bir not koyabiliriz -->
     </div>
 </div>
 
 <table class="table table-bordered table-hover align-middle">
     <thead class="table-light">
         <tr>
-            <th>ID</th>
+            <th style="width:80px;">ID</th>
             <th>Product</th>
             <th>Category</th>
             <th>Brand</th>
             <th>Supplier</th>
-            <th>Price</th>
-            <th>Active</th>
-            <th style="width: 140px;">Action</th>
+            <th style="width:120px;">Price</th>
+            <th style="width:110px;">Active</th>
+            <th style="width:320px;">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -73,29 +119,67 @@
         {
             <tr>
                 <td>@x.ProductID</td>
+
                 <td>
                     <div class="fw-semibold">@x.ProductName</div>
-                    <div class="small text-muted">@x.ImageUrl</div>
+                    <div class="small text-muted text-truncate" style="max-width:520px;">@x.ImageUrl</div>
                 </td>
+
                 <td>@x.CategoryName</td>
                 <td>@x.BrandName</td>
                 <td>@x.SupplierName</td>
                 <td>@x.UnitPrice.ToString("N2") ₺</td>
+
                 <td>
                     <span class="badge @(x.IsActive ? "bg-success" : "bg-secondary")">
                         @(x.IsActive ? "Active" : "Inactive")
                     </span>
                 </td>
+
                 <td>
-                    @if (x.IsActive)
-                    {
-                        <form method="post" asp-action="Deactivate">
-                            <input type="hidden" name="id" value="@x.ProductID" />
-                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Deactivate product?');">
-                                Deactivate
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        <!-- ✅ EDIT LINK -->
+                        <a class="btn btn-sm btn-outline-primary"
+                           asp-action="Edit"
+                           asp-route-id="@x.ProductID">
+                            Edit
+                        </a>
+
+                        @if (x.IsActive)
+                        {
+                            <form method="post" asp-action="Deactivate" class="m-0">
+                                <input type="hidden" name="id" value="@x.ProductID" />
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Deactivate product?');">
+                                    Deactivate
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form method="post" asp-action="Activate" class="m-0">
+                                <input type="hidden" name="id" value="@x.ProductID" />
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="return confirm('Activate product?');">
+                                    Activate
+                                </button>
+                            </form>
+                        }
+
+                        <form method="post" asp-action="Delete" class="m-0">
+                           
+                            <input type="hidden" name="productId" value="@x.ProductID" />
+                            <button class="btn btn-sm btn-outline-dark"
+                                    onclick="return confirm('Ürünü tamamen silmek istiyor musun? Geri alınamaz!');">
+                                Delete
                             </button>
                         </form>
-                    }
+                    </div>
+
+                    <div class="small text-muted mt-1">
+                        Not: Delete sadece ürün siparişlerde kullanılmamışsa çalışır (aksi halde uyarı verir).
+                    </div>
                 </td>
             </tr>
         }

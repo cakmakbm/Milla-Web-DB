@@ -1,60 +1,208 @@
-﻿@model List<MillaWeb.Models.CatalogItem>
+﻿@model MillaWeb.Models.CatalogPageVM
 
 @{
     ViewData["Title"] = "Catalog";
 }
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Catalog</h2>
+<form method="get">
+    <div class="row g-4">
 
-    <form class="d-flex" method="get">
-        <input class="form-control me-2" type="search" name="q" placeholder="Ürün ara (demo)" />
-        <button class="btn btn-outline-dark" type="submit">Ara</button>
-    </form>
-</div>
-
-<div class="row g-3">
-    @foreach (var x in Model)
-    {
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <img src="@(string.IsNullOrWhiteSpace(x.ImageUrl)
-                             ? "https://via.placeholder.com/600x600?text=No+Image"
-                             : x.ImageUrl)"
-                 class="card-img-top"
-                 style="height: 180px; object-fit: cover;" />
-
-
-                <div class="card-body d-flex flex-column">
-                    <div class="small text-muted mb-1">@x.BrandName</div>
-                    <h6 class="card-title mb-2">@x.ProductName</h6>
-
-                    <div class="small text-muted">@x.CategoryName</div>
-                    <div class="small text-muted mb-2">@x.SupplierName</div>
-
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="fw-bold">@x.UnitPrice.ToString("N2") ₺</div>
-
-                            <span class="badge @(x.TotalVariantStock > 0 ? "bg-success" : "bg-danger")">
-                                @(x.TotalVariantStock > 0 ? "Stokta" : "Tükendi")
-                            </span>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between mt-2">
-                            <small class="text-muted">@x.VariantCount varyant</small>
-                            <small class="text-muted">Stok: @x.TotalVariantStock</small>
-                        </div>
-
-                        <a class="btn btn-dark w-100 mt-3"
-                           asp-controller="Product"
-                           asp-action="Detail"
-                           asp-route-id="@x.ProductID">
-                            Detaya Git
-                        </a>
+        <!-- LEFT: FILTERS -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex gap-2 mb-3">
+                        <input class="form-control" type="search" name="q" value="@Model.Q"
+                               placeholder="Ürün / Marka / Kategori / Satıcı ara..." />
+                        <button class="btn btn-dark">Ara</button>
                     </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="small text-muted">Toplam: @Model.TotalCount</div>
+                        <a class="small text-decoration-none" href="/Catalog">Temizle</a>
+                    </div>
+
+                    <div class="accordion" id="filterAcc">
+
+                        <!-- Category -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="hCat">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#cCat">
+                                    Kategori
+                                </button>
+                            </h2>
+                            <div id="cCat" class="accordion-collapse collapse show" data-bs-parent="#filterAcc">
+                                <div class="accordion-body">
+                                    <input class="form-control form-control-sm mb-2" id="catSearch" placeholder="Kategori Ara" />
+                                    <div id="catList" class="d-flex flex-column gap-1" style="max-height: 220px; overflow:auto;">
+                                        @foreach (var c in Model.Categories)
+                                        {
+                                            var checkedCat = Model.SelectedCategories.Contains(c);
+                                            <label class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="cat" value="@c" @(checkedCat ? "checked" : "") />
+                                                <span class="form-check-label">@c</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="hBrand">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cBrand">
+                                    Marka
+                                </button>
+                            </h2>
+                            <div id="cBrand" class="accordion-collapse collapse" data-bs-parent="#filterAcc">
+                                <div class="accordion-body">
+                                    <input class="form-control form-control-sm mb-2" id="brandSearch" placeholder="Marka Ara" />
+                                    <div id="brandList" class="d-flex flex-column gap-1" style="max-height: 220px; overflow:auto;">
+                                        @foreach (var b in Model.Brands)
+                                        {
+                                            var checkedBrand = Model.SelectedBrands.Contains(b);
+                                            <label class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="brand" value="@b" @(checkedBrand ? "checked" : "") />
+                                                <span class="form-check-label">@b</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Size -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="hSize">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cSize">
+                                    Beden
+                                </button>
+                            </h2>
+                            <div id="cSize" class="accordion-collapse collapse" data-bs-parent="#filterAcc">
+                                <div class="accordion-body">
+                                    <input class="form-control form-control-sm mb-2" id="sizeSearch" placeholder="Beden Ara" />
+                                    <div id="sizeList" class="d-flex flex-column gap-1" style="max-height: 220px; overflow:auto;">
+                                        @foreach (var s in Model.Sizes)
+                                        {
+                                            var checkedSize = Model.SelectedSizes.Contains(s);
+                                            <label class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="size" value="@s" @(checkedSize ? "checked" : "") />
+                                                <span class="form-check-label">@s</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-dark w-100 mt-3">Filtrele</button>
                 </div>
             </div>
         </div>
-    }
-</div>
+
+        <!-- RIGHT: PRODUCTS -->
+        <div class="col-lg-9">
+            @if (Model.Items.Count == 0)
+            {
+                <div class="alert alert-info">Sonuç bulunamadı.</div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var x in Model.Items)
+                    {
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="card h-100 shadow-sm">
+                                <img src="@(string.IsNullOrWhiteSpace(x.ImageUrl)
+                                                                         ? "https://via.placeholder.com/600x600?text=No+Image"
+                                                                         : x.ImageUrl)"
+                             class="card-img-top"
+                             style="height: 180px; object-fit: cover;" />
+
+                                <div class="card-body d-flex flex-column">
+                                    <div class="small text-muted mb-1">@x.BrandName</div>
+                                    <h6 class="card-title mb-2">@x.ProductName</h6>
+
+                                    <div class="small text-muted">@x.CategoryName</div>
+                                    <div class="small text-muted mb-2">@x.SupplierName</div>
+
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="fw-bold">@x.UnitPrice.ToString("N2") ₺</div>
+                                            <span class="badge @(x.TotalVariantStock > 0 ? "bg-success" : "bg-danger")">
+                                                @(x.TotalVariantStock > 0 ? "Stokta" : "Tükendi")
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-between mt-2">
+                                            <small class="text-muted">@x.VariantCount varyant</small>
+                                            <small class="text-muted">Stok: @x.TotalVariantStock</small>
+                                        </div>
+
+                                        <a class="btn btn-dark w-100 mt-3"
+                                           asp-controller="Product"
+                                           asp-action="Detail"
+                                           asp-route-id="@x.ProductID">
+                                            Detaya Git
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                }
+                </div>
+
+                <!-- PAGINATION -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   href="?q=@Model.Q&page=@(Model.Page - 1)@string.Concat(Model.SelectedCategories.Select(x => $"&cat={Uri.EscapeDataString(x)}"))@string.Concat(Model.SelectedBrands.Select(x => $"&brand={Uri.EscapeDataString(x)}"))@string.Concat(Model.SelectedSizes.Select(x => $"&size={Uri.EscapeDataString(x)}"))">
+                                    Prev
+                                </a>
+                            </li>
+
+                            <li class="page-item disabled">
+                                <span class="page-link">@Model.Page / @Model.TotalPages</span>
+                            </li>
+
+                            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   href="?q=@Model.Q&page=@(Model.Page + 1)@string.Concat(Model.SelectedCategories.Select(x => $"&cat={Uri.EscapeDataString(x)}"))@string.Concat(Model.SelectedBrands.Select(x => $"&brand={Uri.EscapeDataString(x)}"))@string.Concat(Model.SelectedSizes.Select(x => $"&size={Uri.EscapeDataString(x)}"))">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function bindFilterSearch(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            if (!input || !list) return;
+
+            input.addEventListener('input', () => {
+                const q = input.value.toLowerCase();
+                [...list.querySelectorAll('label')].forEach(lbl => {
+                    const text = lbl.innerText.toLowerCase();
+                    lbl.style.display = text.includes(q) ? '' : 'none';
+                });
+            });
+        }
+
+        bindFilterSearch('catSearch', 'catList');
+        bindFilterSearch('brandSearch', 'brandList');
+        bindFilterSearch('sizeSearch', 'sizeList');
+    </script>
+}

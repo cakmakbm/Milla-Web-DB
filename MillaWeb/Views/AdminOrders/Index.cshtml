@@ -10,6 +10,15 @@
     <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
 </div>
 
+@if (TempData["AdminOrderOk"] != null)
+{
+    <div class="alert alert-success">@TempData["AdminOrderOk"]</div>
+}
+@if (TempData["AdminOrderErr"] != null)
+{
+    <div class="alert alert-danger">@TempData["AdminOrderErr"]</div>
+}
+
 <div class="card p-3 mb-3">
     <form method="get" class="row g-2">
         <div class="col-md-3">
@@ -49,6 +58,8 @@ else
                 <th style="width:120px;">Status</th>
                 <th style="width:140px;">Total</th>
                 <th>Customer</th>
+                <th style="width:110px;">Detail</th>
+                <th style="width:340px;">Update Status</th>
             </tr>
         </thead>
         <tbody>
@@ -62,6 +73,32 @@ else
                     <td>
                         <div class="fw-semibold">@o.FirstName @o.LastName</div>
                         <div class="text-muted small">CustomerID: @o.CustomerID • @o.Email</div>
+                    </td>
+
+                    <td>
+                        <a class="btn btn-sm btn-outline-dark"
+                           asp-action="Detail"
+                           asp-route-id="@o.OrderID">
+                            Detail
+                        </a>
+                    </td>
+
+                    <td>
+                        <form method="post" asp-action="UpdateStatus" class="d-flex gap-2">
+                            <input type="hidden" name="orderId" value="@o.OrderID" />
+                            <input type="hidden" name="customerId" value="@(cid?.ToString() ?? "")" />
+                            <input type="hidden" name="status" value="@status" />
+
+                            <select class="form-select form-select-sm" name="newStatus" style="width:180px;">
+                                <option value="Pending" selected="@(o.OrderStatus == "Pending")">Pending</option>
+                                <option value="Processing" selected="@(o.OrderStatus == "Processing")">Processing</option>
+                                <option value="Shipped" selected="@(o.OrderStatus == "Shipped")">Shipped</option>
+                                <option value="Delivered" selected="@(o.OrderStatus == "Delivered")">Delivered</option>
+                                <option value="Cancelled" selected="@(o.OrderStatus == "Cancelled")">Cancelled</option>
+                            </select>
+
+                            <button class="btn btn-sm btn-dark">Update</button>
+                        </form>
                     </td>
                 </tr>
             }

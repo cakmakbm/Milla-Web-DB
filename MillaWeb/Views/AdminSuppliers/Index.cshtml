@@ -1,0 +1,90 @@
+﻿@model List<MillaWeb.Models.AdminSupplierRow>
+
+@{
+    ViewData["Title"] = "Admin - Suppliers";
+}
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] != null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Suppliers</h2>
+    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Back</a>
+</div>
+
+<div class="card p-3 mb-3">
+    <h5 class="mb-2">Add Supplier</h5>
+    <form method="post" asp-action="Add" class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label">StoreName</label>
+            <input class="form-control" name="storeName" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">ContactEmail</label>
+            <input class="form-control" name="contactEmail" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">ContactPhone</label>
+            <input class="form-control" name="contactPhone" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">AddressText</label>
+            <input class="form-control" name="addressText" />
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button class="btn btn-dark">Add</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th style="width:90px;">ID</th>
+            <th>Store</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th style="width:320px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.SupplierID</td>
+                <td>@s.StoreName</td>
+                <td>@s.ContactEmail</td>
+                <td>@s.ContactPhone</td>
+                <td>@s.AddressText</td>
+                <td>
+                    <form method="post" asp-action="Update" class="d-grid gap-2">
+                        <input type="hidden" name="supplierId" value="@s.SupplierID" />
+
+                        <input class="form-control form-control-sm" name="storeName" value="@s.StoreName" />
+                        <input class="form-control form-control-sm" name="contactEmail" value="@s.ContactEmail" />
+                        <input class="form-control form-control-sm" name="contactPhone" value="@s.ContactPhone" />
+                        <input class="form-control form-control-sm" name="addressText" value="@s.AddressText" />
+
+                        <button class="btn btn-sm btn-outline-dark">Update</button>
+                    </form>
+
+                    <form method="post" asp-action="Delete" class="mt-2">
+                        <input type="hidden" name="supplierId" value="@s.SupplierID" />
+                        <button class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete supplier?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

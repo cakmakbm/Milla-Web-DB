@@ -1,3 +1,8 @@
+using MillaWeb.Data;
+using System.Security.Cryptography;
+using System.Text;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -29,6 +34,8 @@ builder.Services.AddSingleton<MillaWeb.Data.ReturnsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminReturnsRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.ProductSocialRepository>();
 builder.Services.AddSingleton<MillaWeb.Data.AdminOrdersRepository>();
+builder.Services.AddScoped<AdminBrandsRepository>();
+builder.Services.AddScoped<AdminSuppliersRepository>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -40,6 +47,7 @@ builder.Services.AddSession(options =>
 
 
 var app = builder.Build();
+
 
 // pipeline
 if (!app.Environment.IsDevelopment())

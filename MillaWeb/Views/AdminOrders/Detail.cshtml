@@ -1,0 +1,50 @@
+﻿@model MillaWeb.Models.AdminOrderDetailVM
+@{
+    ViewData["Title"] = $"Order #{Model.OrderID}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Order #@Model.OrderID</h2>
+    <a class="btn btn-outline-dark" asp-action="Index">Back</a>
+</div>
+
+<div class="card p-3 mb-3">
+    <div><strong>Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+    <div><strong>Status:</strong> @Model.OrderStatus</div>
+    <div><strong>Total:</strong> @Model.TotalAmount.ToString("N2") ₺</div>
+    <hr />
+    <div><strong>Customer:</strong> @Model.FirstName @Model.LastName</div>
+    <div class="text-muted small">CustomerID: @Model.CustomerID • @Model.Email</div>
+</div>
+
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th style="width:90px;">ItemID</th>
+            <th>Product</th>
+            <th style="width:220px;">Variant</th>
+            <th style="width:90px;">Qty</th>
+            <th style="width:140px;">Unit</th>
+            <th style="width:140px;">Line</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.OrderItemID</td>
+                <td>
+                    <div class="fw-semibold">@x.ProductName</div>
+                    <div class="text-muted small">ProductID: @x.ProductID • VariantID: @x.VariantID</div>
+                </td>
+                <td>
+                    <div>@x.Color / @x.Size</div>
+                    <div class="text-muted small">SKU: @x.SKU</div>
+                </td>
+                <td>@x.Quantity</td>
+                <td>@x.UnitPriceAtOrder.ToString("N2") ₺</td>
+                <td class="fw-bold">@x.LineTotal.ToString("N2") ₺</td>
+            </tr>
+        }
+    </tbody>
+</table>

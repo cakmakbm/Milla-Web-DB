@@ -9,8 +9,10 @@
 </div>
 
 <div class="row g-3">
+
+    <!-- Products -->
     <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
+        <div class="card p-3 shadow-sm h-100">
             <h5>Products</h5>
             <p class="text-muted mb-2">Ürün ekle / güncelle / pasif et</p>
             <a class="btn btn-dark"
@@ -21,8 +23,9 @@
         </div>
     </div>
 
+    <!-- Variants -->
     <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
+        <div class="card p-3 shadow-sm h-100">
             <h5>Variants & Stock</h5>
             <p class="text-muted mb-2">Varyant ekle / stok güncelle</p>
             <a class="btn btn-dark"
@@ -33,15 +36,56 @@
         </div>
     </div>
 
+    <!-- Brands -->
     <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
-            <h5>Low Stock</h5>
-            <p class="text-muted mb-2">Azalan stok raporu</p>
+        <div class="card p-3 shadow-sm h-100">
+            <h5>Brands</h5>
+            <p class="text-muted mb-2">Marka ekle / güncelle / sil</p>
+            <a class="btn btn-dark"
+               asp-controller="AdminBrands"
+               asp-action="Index">
+                Manage
+            </a>
+        </div>
+    </div>
+
+    <!-- Suppliers -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+            <h5>Suppliers</h5>
+            <p class="text-muted mb-2">Satıcı ekle / güncelle / sil</p>
+            <a class="btn btn-dark"
+               asp-controller="AdminSuppliers"
+               asp-action="Index">
+                Manage
+            </a>
+        </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+            <h5>Orders</h5>
+            <p class="text-muted mb-2">Tüm siparişler & durum yönetimi</p>
+            <a class="btn btn-dark"
+               asp-controller="AdminOrders"
+               asp-action="Index">
+                Manage
+            </a>
+        </div>
+    </div>
+
+    <!-- Returns -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+            <h5>Returns</h5>
+            <p class="text-muted mb-2">İade taleplerini yönet</p>
             <a class="btn btn-outline-dark"
-               asp-controller="AdminReports"
-               asp-action="LowStock">
+               asp-controller="AdminReturns"
+               asp-action="Index">
                 View
             </a>
         </div>
     </div>
+
 </div>
