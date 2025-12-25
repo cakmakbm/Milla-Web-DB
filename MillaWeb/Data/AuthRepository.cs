@@ -43,12 +43,7 @@ WHERE Email = @Email AND PasswordHash = @Pwd;
         );
     }
 
-    // REGISTER (Customer + AppUser)
-    // Bu metot:
-    // 1) Email zaten var mı kontrol eder
-    // 2) Customer insert eder
-    // 3) AppUser insert eder (Role='User', CustomerID bağlar)
-    // 4) CustomerID döndürür
+  
     public int RegisterCustomer(
     string email,
     string passwordHash,

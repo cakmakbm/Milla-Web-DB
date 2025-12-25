@@ -13,7 +13,7 @@ public class OrdersRepository
             ?? throw new InvalidOperationException("Missing connection string: Default");
     }
 
-    public int Checkout(int customerId, List<CartItem> cart, int? addressId = null)
+    public int Checkout(int customerId, List<CartItem> cart, int? addressId = null, string paymentMethod = "Card")
     {
         using var conn = new SqlConnection(_connStr);
         conn.Open();
@@ -57,6 +57,29 @@ public class OrdersRepository
                 cmd3.Parameters.AddWithValue("@OrderID", orderId);
                 cmd3.ExecuteNonQuery();
             }
+
+            // 2) Order total'ı DB'den çek
+            decimal totalAmount;
+            using (var cmdGetTotal = new SqlCommand(@"
+    SELECT TotalAmount
+    FROM dbo.[Order]
+    WHERE OrderID = @OrderID;", conn, tx))
+            {
+                cmdGetTotal.Parameters.AddWithValue("@OrderID", orderId);
+                var obj = cmdGetTotal.ExecuteScalar();
+                totalAmount = obj == null || obj == DBNull.Value ? 0m : Convert.ToDecimal(obj);
+            }
+
+            // 3) Payment kaydı oluştur
+            using (var cmd4 = new SqlCommand("dbo.sp_UserCreatePayment", conn, tx))
+            {
+                cmd4.CommandType = CommandType.StoredProcedure;
+                cmd4.Parameters.AddWithValue("@OrderID", orderId);
+                cmd4.Parameters.AddWithValue("@PaymentMethod", paymentMethod);
+                cmd4.Parameters.AddWithValue("@Amount", totalAmount);
+                cmd4.ExecuteNonQuery();
+            }
+
 
             tx.Commit();
             return orderId;

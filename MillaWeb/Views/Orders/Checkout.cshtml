@@ -14,16 +14,27 @@
 else
 {
     <form method="post" asp-action="CheckoutSubmit" class="card p-3">
+
         <label class="form-label">Select Address</label>
-        <select class="form-select" name="addressId" required>
+        <select class="form-select mb-3" name="addressId" required>
             @foreach (var a in Model)
             {
-                <option value="@a.AddressID" selected="@a.IsDefault">@a.DisplayText</option>
+                <option value="@a.AddressID" selected="@a.IsDefault">
+                    @a.DisplayText
+                </option>
             }
         </select>
 
-        <div class="mt-3 text-end">
+        <label class="form-label">Payment Method</label>
+        <select class="form-select mb-3" name="paymentMethod" required>
+            <option value="CreditCard">Credit / Debit Card</option>
+            <option value="CashOnDelivery">Cash on Delivery</option>
+            <option value="BankTransfer">Bank Transfer</option>
+        </select>
+
+        <div class="text-end">
             <button class="btn btn-dark">Place Order</button>
         </div>
     </form>
+
 }

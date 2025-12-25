@@ -38,7 +38,7 @@ public class OrdersController : Controller
         return View(addresses);
     }
 
-    [HttpPost]
+    /*[HttpPost]
     public IActionResult CheckoutSubmit(int addressId)
     {
         int customerId = GetCustomerId();
@@ -47,6 +47,24 @@ public class OrdersController : Controller
         if (cart.Count == 0) return RedirectToAction("Index", "Cart");
 
         int orderId = _repo.Checkout(customerId, cart, addressId);
+
+        HttpContext.Session.Remove(Key);
+
+        return RedirectToAction("Detail", new { id = orderId, success = 1 });
+    }*/
+    [HttpPost]
+    public IActionResult CheckoutSubmit(int addressId, string paymentMethod)
+    {
+        int customerId = GetCustomerId();
+
+        var cart = HttpContext.Session.GetObject<List<CartItem>>(Key) ?? new List<CartItem>();
+        if (cart.Count == 0) return RedirectToAction("Index", "Cart");
+
+        // boş gelirse default ver (güvenlik)
+        if (string.IsNullOrWhiteSpace(paymentMethod))
+            paymentMethod = "Card";
+
+        int orderId = _repo.Checkout(customerId, cart, addressId, paymentMethod);
 
         HttpContext.Session.Remove(Key);
 
