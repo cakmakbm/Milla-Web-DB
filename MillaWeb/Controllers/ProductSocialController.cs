@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using MillaWeb.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace MillaWeb.Controllers;
 
@@ -11,22 +14,33 @@ public class ProductSocialController : Controller
     public ProductSocialController(ProductSocialRepository repo) => _repo = repo;
 
     [HttpPost]
+
     public IActionResult AddReview(int productId, int rating, string? reviewText)
     {
-        int cid = GetCustomerId();
+        if (User.Identity?.IsAuthenticated != true)
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Detail", "Product", new { id = productId }) });
+
+        var cidStr = User.FindFirst("CustomerID")?.Value;
+        if (!int.TryParse(cidStr, out var customerId))
+            return RedirectToAction("Login", "Account");
 
         try
         {
-            _repo.AddOrUpdateReview(cid, productId, rating, reviewText);
-            TempData["ReviewOk"] = "Review kaydedildi.";
+            _repo.AddOrUpdateReview(customerId, productId, rating, reviewText);
+            TempData["ReviewOk"] = "✅ Review kaydedildi.";
         }
-        catch (Exception ex)
+        catch (SqlException ex)
         {
-            TempData["ReviewErr"] = ex.Message;
+            
+            if (ex.Number == 50000 || ex.Message.Contains("purchased", StringComparison.OrdinalIgnoreCase))
+                TempData["ReviewErr"] = "Bu ürünü satın almadan review yazamazsın.";
+            else
+                TempData["ReviewErr"] = "Review kaydedilemedi: " + ex.Message;
         }
 
         return RedirectToAction("Detail", "Product", new { id = productId });
     }
+
 
 
     [HttpPost]

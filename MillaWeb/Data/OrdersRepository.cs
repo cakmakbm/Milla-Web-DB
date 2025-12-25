@@ -29,7 +29,7 @@ public class OrdersRepository
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@CustomerID", customerId);
 
-                // SP’de AddressID parametresi var
+                
                 cmd.Parameters.AddWithValue("@AddressID", (object?)addressId ?? DBNull.Value);
 
                 var outId = new SqlParameter("@OrderID", SqlDbType.Int)

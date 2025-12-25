@@ -91,6 +91,14 @@
 <hr class="my-4" />
 
 <h4>Reviews</h4>
+@if (TempData["ReviewOk"] != null)
+{
+    <div class="alert alert-success">@TempData["ReviewOk"]</div>
+}
+@if (TempData["ReviewErr"] != null)
+{
+    <div class="alert alert-danger">@TempData["ReviewErr"]</div>
+}
 
 @if (User.Identity?.IsAuthenticated == true)
 {
